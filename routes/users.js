@@ -1,18 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const dotenv = require('dotenv');
 const conn = require('../mariadb');
+const jwt = require('jsonwebtoken');
+
+const {body, param, validationResult} = require('express-validator');
 const {StatusCodes} = require('http-status-codes');
 const {
-        join,
-        login, 
-        passwordResetRequest,
-        passwordReset
-    } = require('../controller/UserController');
-const jwt = require('jsonwebtoken');
-const {body, param, validationResult} = require('express-validator');
+    join,
+    login, 
+    passwordResetRequest,
+    passwordReset
+} = require('../controller/UserController');
 
-dotenv.config();
+const {
+    EMAIL_VALIDATION,
+    PASSWORD_VALIDATION,
+} = require('../utils/validators');
 
 router.use(express.json());
 
@@ -25,16 +28,33 @@ const validate = (req, res, next) => {
 
 router.post('/join',
     [
-        body('email').notEmpty().isEmail().withMessage('이메일 확인 필요'),
-        body('password').notEmpty().withMessage('비밀번호 확인 필요'),
+        EMAIL_VALIDATION,
+        PASSWORD_VALIDATION,
         validate
     ],
     join);
 
-router.post('/login', login);
+router.post('/login',
+    [
+        EMAIL_VALIDATION,
+        PASSWORD_VALIDATION,
+        validate
+    ],
+    login);
 
-router.post('/reset', passwordResetRequest);
+router.post('/reset',
+    [
+        EMAIL_VALIDATION,
+        validate
+    ],
+    passwordResetRequest);
 
-router.put('/reset', passwordReset);
+router.put('/reset',
+    [
+        EMAIL_VALIDATION,
+        PASSWORD_VALIDATION,
+        validate
+    ],
+    passwordReset);
 
 module.exports = router;

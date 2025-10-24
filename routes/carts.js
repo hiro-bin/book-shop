@@ -2,11 +2,46 @@ const express = require('express');
 const router = express.Router();
 const {addToCart, getCartItems, removeCartItem} = require('../controller/CartController');
 
+const {
+    BOOK_ID_VALIDATION,
+    QUANTITY_VALIDATION,
+    USER_ID_VALIDATION,
+    CARTITEMS_ID_VALIDATION,
+    SELECTED_VALIDATION,
+} = require('../utils/validators');
+
 router.use(express.json());
 
-router.post('/', addToCart);
-router.get('/', getCartItems);
-router.delete('/:id', removeCartItem);
+const validate = (req, res, next) => {
+    const err = validationResult(req);
+
+    if(err.isEmpty()) return next();
+    else return res.status(400).json(err.array());
+}
+
+router.post('/',
+    [
+        BOOK_ID_VALIDATION,
+        QUANTITY_VALIDATION,
+        USER_ID_VALIDATION,
+        validate
+    ],
+    addToCart);
+
+router.get('/',
+    [
+        USER_ID_VALIDATION,
+        SELECTED_VALIDATION,
+        validate
+    ],
+    getCartItems);
+
+router.delete('/:id',
+    [
+        CARTITEMS_ID_VALIDATION,
+        validate
+    ],
+    removeCartItem);
 
 
 module.exports = router;

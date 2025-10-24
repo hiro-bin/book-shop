@@ -1,21 +1,34 @@
 const express = require('express');
 const router = express.Router();
-const dotenv = require('dotenv');
+const {order, getOrders, getOrderDetail} = require('../controller/OrderController');
 
-dotenv.config();
+const {
+    BOOK_ID_VALIDATION,
+    QUANTITY_VALIDATION,
+    USER_ID_VALIDATION,
+    CARTITEMS_ID_VALIDATION,
+    SELECTED_VALIDATION,
+} = require('../utils/validators');
 
 router.use(express.json());
 
-router.post('/', (req, res) => {
-    res.json('주문하기');
-});
+const validate = (req, res, next) => {
+    const err = validationResult(req);
 
-router.get('/', (req, res) => {
-    res.json('주문 목록 조회');
-});
+    if(err.isEmpty()) return next();
+    else return res.status(400).json(err.array());
+}
 
-router.get('/:orderId', (req, res) => {
-    res.json('주문 상세 상품 조회');
-});
+router.post('/', order);
+
+router.get('/',
+    [
+        USER_ID_VALIDATION,
+        SELECTED_VALIDATION,
+        validate
+    ],
+    getOrders);
+
+router.get('/:id', getOrderDetail);
 
 module.exports = router;
