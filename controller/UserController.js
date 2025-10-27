@@ -2,14 +2,22 @@ const conn = require('../mariadb');
 const {StatusCodes} = require('http-status-codes');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const {
+    SALT_BYTE_SIZE,
+    HASH_ITERATIONS,
+    HASH_KEY_LENGTH,
+    HASH_ALGORITHM,
+    JWT_EXPIRATION_TIME,
+    JWT_ISSUER,
+} = require('../utils/constants');
 
 const join = (req, res) => {
         const {email, password} = req.body;
 
         let sql = `INSERT INTO users (email, password, salt) VALUES (?, ?, ?)`;
 
-        const salt = crypto.randomBytes(10).toString('base64');
-        const hashPassword = crypto.pbkdf2Sync(password, salt, 10000, 10, 'sha512').toString('base64');
+        const salt = crypto.randomBytes(SALT_BYTE_SIZE).toString('base64');
+        const hashPassword = crypto.pbkdf2Sync(password, salt, HASH_ITERATIONS, HASH_KEY_LENGTH, HASH_ALGORITHM).toString('base64');
         let values = [email, hashPassword, salt];
 
         conn.query(sql, values, (err, results) => {
@@ -52,13 +60,13 @@ const login = (req, res) => {
 
             // return res.status(StatusCodes.OK).json(results);
             const loginUser = results[0];
-            const hashPassword = crypto.pbkdf2Sync(password, loginUser.salt, 10000, 10, 'sha512').toString('base64');
+            const hashPassword = crypto.pbkdf2Sync(password, loginUser.salt, HASH_ITERATIONS, HASH_KEY_LENGTH, HASH_ALGORITHM).toString('base64');
             if(loginUser && loginUser.password == hashPassword) {
                 const token = jwt.sign({
                     email: loginUser.email
                 }, process.env.PRIVATE_KEY, {
-                    expiresIn: '5m',
-                    issuer: 'songa'
+                    expiresIn: JWT_EXPIRATION_TIME,
+                    issuer: JWT_ISSUER
                 });
                 console.log(token);
 
@@ -99,8 +107,8 @@ const passwordReset = (req, res) => {
 
     let sql = `UPDATE users SET password = ?, salt = ? WHERE email = ?`;
 
-    const salt = crypto.randomBytes(10).toString('base64');
-    const hashPassword = crypto.pbkdf2Sync(password, salt, 10000, 10, 'sha512').toString('base64');
+    const salt = crypto.randomBytes(SALT_BYTE_SIZE).toString('base64');
+    const hashPassword = crypto.pbkdf2Sync(password, salt, HASH_ITERATIONS, HASH_KEY_LENGTH, HASH_ALGORITHM).toString('base64');
 
     let values = [hashPassword, salt, email];
     conn.query(sql, values, (err, results) => {

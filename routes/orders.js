@@ -1,5 +1,8 @@
 const express = require('express');
 const router = express.Router();
+
+const {body, param, validationResult} = require('express-validator');
+const {StatusCodes} = require('http-status-codes');
 const {order, getOrders, getOrderDetail} = require('../controller/OrderController');
 
 const {
@@ -16,7 +19,7 @@ const validate = (req, res, next) => {
     const err = validationResult(req);
 
     if(err.isEmpty()) return next();
-    else return res.status(400).json(err.array());
+    else return res.status(StatusCodes.BAD_REQUEST).json(err.array());
 }
 
 router.post('/', order);
