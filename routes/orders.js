@@ -6,11 +6,13 @@ const {StatusCodes} = require('http-status-codes');
 const {order, getOrders, getOrderDetail} = require('../controller/OrderController');
 
 const {
-    BOOK_ID_VALIDATION,
-    QUANTITY_VALIDATION,
+    ITEMS_VALIDATION,
+    DELIVERY_VALIDATION,
+    TOTALQUANTITY_VALIDATION,
+    TOTALPRICE_VALIDATION,
     USER_ID_VALIDATION,
-    CARTITEMS_ID_VALIDATION,
-    SELECTED_VALIDATION,
+    FIRSTBOOKTITLE_VALIDATION,
+    ORDER_ID_IN_PARAM_VALIDATION
 } = require('../utils/validators');
 
 router.use(express.json());
@@ -22,10 +24,25 @@ const validate = (req, res, next) => {
     else return res.status(StatusCodes.BAD_REQUEST).json(err.array());
 }
 
-router.post('/', order);
+router.post('/',
+    [
+        ITEMS_VALIDATION,
+        DELIVERY_VALIDATION,
+        TOTALQUANTITY_VALIDATION,
+        TOTALPRICE_VALIDATION,
+        USER_ID_VALIDATION,
+        FIRSTBOOKTITLE_VALIDATION,
+        validate
+    ],
+    order);
 
 router.get('/', getOrders);
 
-router.get('/:id', getOrderDetail);
+router.get('/:id',
+    [
+        ORDER_ID_IN_PARAM_VALIDATION,
+        validate
+    ],
+    getOrderDetail);
 
 module.exports = router;

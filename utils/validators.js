@@ -29,7 +29,35 @@ const CURRENTPAGE_VALIDATION = query('currentPage').notEmpty().isInt().withMessa
 
 const BOOK_ID_IN_PARAM_VALIDATION = param('id').notEmpty().isInt().withMessage('book.id 확인 필요');
 
-// category_id, news, limit, currentPage
+const ORDER_ID_IN_PARAM_VALIDATION = param('id').notEmpty().isInt().withMessage('order.id 확인 필요');
+
+const ITEMS_VALIDATION = [
+    body('items').notEmpty().isArray().withMessage('items가 배열인지 확인 필요'),
+    body('items.*').isInt().withMessage('items 확인 필요')
+];
+
+const DELIVERY_VALIDATION = [
+    body('delivery')
+        .notEmpty().withMessage('delivery 비어있는지 확인 필요')
+        .custom((value) => {
+            if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+                throw new Error('delivery가 객체인지 확인 필요');
+            }
+            return true;
+        }),
+    body('delivery.address')
+        .notEmpty().isString().withMessage('delivery.address 확인 필요'),
+    body('delivery.receiver')
+        .notEmpty().isString().withMessage('delivery.receiver 확인 필요'),
+    body('delivery.contact')
+        .notEmpty().isString().withMessage('delivery.contact 확인 필요')
+];
+
+const TOTALQUANTITY_VALIDATION = body('totalQuantity').notEmpty().isInt().withMessage('totalQuantity 확인 필요');
+
+const TOTALPRICE_VALIDATION = body('totalPrice').notEmpty().isInt().withMessage('totalPrice 확인 필요');
+
+const FIRSTBOOKTITLE_VALIDATION = body('firstBookTitle').notEmpty().isString().withMessage('firstBookTitle 확인 필요');
 
 module.exports = {
     EMAIL_VALIDATION,
@@ -45,4 +73,10 @@ module.exports = {
     LIMIT_VALIDATION,
     CURRENTPAGE_VALIDATION,
     BOOK_ID_IN_PARAM_VALIDATION,
+    ORDER_ID_IN_PARAM_VALIDATION,
+    ITEMS_VALIDATION,
+    DELIVERY_VALIDATION,
+    TOTALQUANTITY_VALIDATION,
+    TOTALPRICE_VALIDATION,
+    FIRSTBOOKTITLE_VALIDATION,
 };
