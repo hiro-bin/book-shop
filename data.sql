@@ -53,7 +53,7 @@ DELETE FROM likes WHERE user_id = 1 AND liked_book_id = 3;
 // 장바구니 담기
 INSERT INTO cartItems (book_id, quantity, user_id) VALUES (1, 1, 1);
 
-// 장바구니 목록 조회
+// 장바구니 아이템 목록 조회
 SELECT cartItems.id, book_id, title, summary, quantity, price FROM cartItems LEFT JOIN books ON cartItems.book_id = books.id;
 
 // 장바구니 아이템 삭제
@@ -81,3 +81,6 @@ VALUES (order_id, 3, 2);
 // 가장 최근의 pk 값 가져옴
 SELECT MAX(id) FROM orderedBook;
 SELECT last_insert_id();
+
+// 결제된 도서 장바구니 삭제
+DELETE FROM cartItems WHERE id IN (1, 2, 3);

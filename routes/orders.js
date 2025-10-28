@@ -24,13 +24,7 @@ const validate = (req, res, next) => {
 
 router.post('/', order);
 
-router.get('/',
-    [
-        USER_ID_VALIDATION,
-        SELECTED_VALIDATION,
-        validate
-    ],
-    getOrders);
+router.get('/', getOrders);
 
 router.get('/:id', getOrderDetail);
 
