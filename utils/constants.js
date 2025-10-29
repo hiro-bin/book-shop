@@ -2,7 +2,7 @@ const SALT_BYTE_SIZE = 10;
 const HASH_ITERATIONS = 10000;
 const HASH_KEY_LENGTH = 10;
 const HASH_ALGORITHM = 'sha512';
-const JWT_EXPIRATION_TIME = '5m';
+const JWT_EXPIRATION_TIME = '1m';
 const JWT_ISSUER = 'songa';
 
 module.exports = {

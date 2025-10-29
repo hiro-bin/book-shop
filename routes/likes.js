@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const {body, param, validationResult} = require('express-validator');
 const {addLike, removeLike} = require('../controller/LikeController');
 const {StatusCodes} = require('http-status-codes');
 
 const {
-    USER_ID_VALIDATION,
     LIKED_BOOK_ID_VALIDATION,
 } = require('../utils/validators');
 
@@ -19,7 +19,6 @@ const validate = (req, res, next) => {
 
 router.post('/:id',
     [
-        USER_ID_VALIDATION,
         LIKED_BOOK_ID_VALIDATION,
         validate
     ],
@@ -27,7 +26,6 @@ router.post('/:id',
 
 router.delete('/:id',
     [
-        USER_ID_VALIDATION,
         LIKED_BOOK_ID_VALIDATION,
         validate
     ],
