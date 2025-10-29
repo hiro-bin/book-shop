@@ -3,15 +3,15 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
     class User extends Model {
         static associate(models) {
-            models.User.hasMany(models.Likes, {
+            models.User.hasMany(models.Like, {
                 foreignKey: 'user_id',
                 sourceKey: 'id'
             });
-            models.User.hasMany(models.Orders, {
+            models.User.hasMany(models.Order, {
                 foreignKey: 'user_id',
                 sourceKey: 'id'
             });
-            models.User.hasMany(models.CartItems, {
+            models.User.hasMany(models.CartItem, {
                 foreignKey: 'user_id',
                 sourceKey: 'id'
             });

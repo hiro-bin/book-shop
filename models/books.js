@@ -5,10 +5,18 @@ module.exports = (sequelize, DataTypes) => {
         static associate(models) {
             models.Book.belongsTo(models.Category, {
                 foreignKey: 'category_id',
-                sourceKey: 'category_id'
+                targetKey: 'category_id'
             });
-            models.Book.hasMany(models.Likes, {
+            models.Book.hasMany(models.Like, {
                 foreignKey: 'liked_book_id',
+                sourceKey: 'id'
+            });
+            models.Book.hasMany(models.CartItem, {
+                foreignKey: 'book_id',
+                sourceKey: 'id'
+            });
+            models.Book.hasMany(models.OrderedBook, {
+                foreignKey: 'book_id',
                 sourceKey: 'id'
             });
         }

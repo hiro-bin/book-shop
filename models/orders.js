@@ -1,19 +1,23 @@
 const { Model, Sequelize } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-    class Orders extends Model {
+    class Order extends Model {
         static associate(models) {
-            models.Orders.belongsTo(models.User, {
+            models.Order.belongsTo(models.User, {
                 foreignKey: 'user_id',
                 targetKey: 'id'
             });
-            models.Orders.belongsTo(models.User, {
+            models.Order.belongsTo(models.Delivery, {
                 foreignKey: 'delivery_id',
                 targetKey: 'id'
             });
+            models.Order.hasMany(models.OrderedBook, {
+                foreignKey: 'order_id',
+                sourceKey: 'id'
+            });
         }
     }
-    Orders.init({
+    Order.init({
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -51,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'likes',
+                model: 'delivery',
                 key: 'id',
             },
             constraints: {
@@ -60,11 +64,11 @@ module.exports = (sequelize, DataTypes) => {
         },
     }, {
         sequelize,
-        modelName: 'Orders',
+        modelName: 'Order',
         tableName: 'orders',
         timestamps: false,
         underscored: true
     });
 
-    return Orders;
+    return Order;
 }
