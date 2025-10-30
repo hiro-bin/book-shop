@@ -65,9 +65,27 @@ const generateAuthToken = async (loginUser) => {
     return token;
 };
 
+const resetPassword = async (email, password) => {
+    const salt = crypto.randomBytes(SALT_BYTE_SIZE).toString('base64');
+    const hashPassword = crypto.pbkdf2Sync(password, salt, HASH_ITERATIONS, HASH_KEY_LENGTH, HASH_ALGORITHM).toString('base64');
+
+    const [affectedRows] = await User.update(
+        {
+            password: hashPassword,
+            salt: salt
+        },
+        {
+            where: { email: email }
+        }
+    );
+
+    return affectedRows > 0;
+}
+
 module.exports = {
     createUser,
     foundUser,
     verifyUserCredentials,
     generateAuthToken,
+    resetPassword
 }

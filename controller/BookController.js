@@ -30,7 +30,13 @@ const allBooks = async (req, res) => {
         values.push(parseInt(limit), offset);
 
         const [results] = await conn.query(sql, values);
-        if(results.length) allBooksRes.books = results;
+        if(results.length) {
+            results.map((result) => {
+                result.pubDate = result.pub_date;
+                delete result.pub_date;
+            });
+            allBooksRes.books = results;
+        }
         else return res.status(StatusCodes.NOT_FOUND).end();
 
         sql = "SELECT found_rows()";

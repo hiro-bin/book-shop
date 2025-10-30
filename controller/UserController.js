@@ -6,31 +6,24 @@ const crypto = require('crypto');
 const userService = require('../service/userService');
 
 const join = async (req, res) => {
-    let conn;
     try {
-        conn = await pool.getConnection();
         const {email, password} = req.body;
 
         const results = await userService.createUser(email, password);
 
-        return res.status(StatusCodes.CREATED).json(results);
+        if(results.affectedRows) return res.status(StatusCodes.CREATED).json(results);
+        else res.status(StatusCodes.BAD_REQUEST).end();
     } catch (err) {
         console.log(err);
         return res.status(StatusCodes.BAD_REQUEST).end();
-    } finally {
-        if (conn) conn.release();
     }
 };
 
 const login = async (req, res) => {
-    let conn;
     try {
-        conn = await pool.getConnection();
         const {email, password} = req.body;
 
-        const users = await userService.foundUser(email);
-
-        const loginUser = users;
+        const loginUser = await userService.foundUser(email);
 
         const verifyUser = await userService.verifyUserCredentials(loginUser, password);
 
@@ -47,22 +40,16 @@ const login = async (req, res) => {
     } catch (err) {
         console.log(err);
         return res.status(StatusCodes.BAD_REQUEST).end();
-    } finally {
-        if (conn) conn.release();
     }
 };
 
 const passwordResetRequest = async (req, res) => {
-    let conn;
     try {
-        conn = await pool.getConnection();
         const {email} = req.body;
 
-        let sql = `SELECT * FROM users WHERE email = ?`;
-        const [results] = await conn.query(sql, email);
+        const loginUser = await userService.foundUser(email);
 
-        const user = results[0];
-        if(user) {
+        if(loginUser) {
             return res.status(StatusCodes.OK).json({
                 email: email
             });
@@ -72,35 +59,23 @@ const passwordResetRequest = async (req, res) => {
     } catch (err) {
         console.log(err);
         return res.status(StatusCodes.BAD_REQUEST).end();
-    } finally {
-        if (conn) conn.release();
     }
 };
 
 const passwordReset = async (req, res) => {
-    let conn;
     try {
-        conn = await pool.getConnection();
         const {email, password} = req.body;
 
-        let sql = `UPDATE users SET password = ?, salt = ? WHERE email = ?`;
+        const results = await userService.resetPassword(email, password);
 
-        const salt = crypto.randomBytes(SALT_BYTE_SIZE).toString('base64');
-        const hashPassword = crypto.pbkdf2Sync(password, salt, HASH_ITERATIONS, HASH_KEY_LENGTH, HASH_ALGORITHM).toString('base64');
-
-        let values = [hashPassword, salt, email];
-        const [results] = await conn.query(sql, values);
-
-        if(results.affectedRows == 0) {
-            return res.status(StatusCodes.BAD_REQUEST).end();
-        } else {
+        if(results) {
             return res.status(StatusCodes.OK).json(results);
+        } else {
+            return res.status(StatusCodes.BAD_REQUEST).end();
         }
     } catch (err) {
         console.log(err);
         return res.status(StatusCodes.BAD_REQUEST).end();
-    } finally {
-        if (conn) conn.release();
     }
 };
 
