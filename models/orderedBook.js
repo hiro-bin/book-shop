@@ -1,19 +1,19 @@
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-    class OrderdBook extends Model {
+    class OrderedBook extends Model {
         static associate(models) {
-            models.OrderdBook.belongsTo(models.Book, {
+            models.OrderedBook.belongsTo(models.Book, {
                 foreignKey: 'book_id',
                 targetKey: 'id'
             });
-            models.OrderdBook.belongsTo(models.Order, {
+            models.OrderedBook.belongsTo(models.Order, {
                 foreignKey: 'order_id',
                 targetKey: 'id'
             });
         }
     }
-    OrderdBook.init({
+    OrderedBook.init({
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
@@ -48,11 +48,11 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         sequelize,
-        modelName: 'OrderdBook',
+        modelName: 'OrderedBook',
         tableName: 'orderedBook',
         timestamps: false,
         underscored: true
     });
 
-    return OrderdBook;
+    return OrderedBook;
 }

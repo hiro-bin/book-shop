@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { StatusCodes } = require('http-status-codes');
 const {body, param, validationResult} = require('express-validator');
 const {
     allBooks,
@@ -8,7 +9,6 @@ const {
 } = require('../controller/BookController');
 
 const {
-    USER_ID_VALIDATION,
     CATEGORY_ID_VALIDATION,
     NEWS_VALIDATION,
     LIMIT_VALIDATION,
@@ -37,7 +37,6 @@ router.get('/',
     allBooks);
 router.get('/:id',
     [
-        USER_ID_VALIDATION,
         BOOK_ID_IN_PARAM_VALIDATION,
         validate,
     ],

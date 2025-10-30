@@ -3,11 +3,11 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
     class CartItem extends Model {
         static associate(models) {
-            models.CartItems.belongsTo(models.User, {
+            models.CartItem.belongsTo(models.User, {
                 foreignKey: 'user_id',
                 targetKey: 'id'
             });
-            models.CartItems.belongsTo(models.Book, {
+            models.CartItem.belongsTo(models.Book, {
                 foreignKey: 'book_id',
                 targetKey: 'id'
             });

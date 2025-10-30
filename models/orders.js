@@ -37,7 +37,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         created_at: {
-            type: DataTypes.TIMESTAMP,
+            type: DataTypes.DATE,
             defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
         },
         user_id: {

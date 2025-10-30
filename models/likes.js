@@ -3,11 +3,11 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
     class Like extends Model {
         static associate(models) {
-            models.Likes.belongsTo(models.User, {
+            models.Like.belongsTo(models.User, {
                 foreignKey: 'user_id',
                 targetKey: 'id'
             });
-            models.Likes.belongsTo(models.Book, {
+            models.Like.belongsTo(models.Book, {
                 foreignKey: 'liked_book_id',
                 targetKey: 'id'
             });

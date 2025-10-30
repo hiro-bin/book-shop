@@ -2,14 +2,8 @@ const pool = require('../mariadb');
 const {StatusCodes} = require('http-status-codes');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const {
-    SALT_BYTE_SIZE,
-    HASH_ITERATIONS,
-    HASH_KEY_LENGTH,
-    HASH_ALGORITHM,
-    JWT_EXPIRATION_TIME,
-    JWT_ISSUER,
-} = require('../utils/constants');
+
+const userService = require('../service/userService');
 
 const join = async (req, res) => {
     let conn;
@@ -17,13 +11,8 @@ const join = async (req, res) => {
         conn = await pool.getConnection();
         const {email, password} = req.body;
 
-        let sql = `INSERT INTO users (email, password, salt) VALUES (?, ?, ?)`;
+        const results = await userService.createUser(email, password);
 
-        const salt = crypto.randomBytes(SALT_BYTE_SIZE).toString('base64');
-        const hashPassword = crypto.pbkdf2Sync(password, salt, HASH_ITERATIONS, HASH_KEY_LENGTH, HASH_ALGORITHM).toString('base64');
-        let values = [email, hashPassword, salt];
-
-        const [results] = await conn.query(sql, values);
         return res.status(StatusCodes.CREATED).json(results);
     } catch (err) {
         console.log(err);
@@ -39,27 +28,19 @@ const login = async (req, res) => {
         conn = await pool.getConnection();
         const {email, password} = req.body;
 
-        let sql = `SELECT * FROM users WHERE email = ?`;
-        const [results] = await conn.query(sql, email);
+        const users = await userService.foundUser(email);
 
-        const loginUser = results[0];
-        const hashPassword = crypto.pbkdf2Sync(password, loginUser.salt, HASH_ITERATIONS, HASH_KEY_LENGTH, HASH_ALGORITHM).toString('base64');
+        const loginUser = users;
+
+        const verifyUser = await userService.verifyUserCredentials(loginUser, password);
+
+        if(verifyUser) {
+            const token = await userService.generateAuthToken(verifyUser);
         
-        if(loginUser && loginUser.password == hashPassword) {
-            const token = jwt.sign({
-                id: loginUser.id,
-                email: loginUser.email
-            }, process.env.PRIVATE_KEY, {
-                expiresIn: JWT_EXPIRATION_TIME,
-                issuer: JWT_ISSUER
-            });
-
             res.cookie("token", token, {
                 httpOnly: true
             });
-            console.log(token);
-
-            return res.status(StatusCodes.OK).json(results);
+            return res.status(StatusCodes.OK).json(verifyUser);
         } else {
             return res.status(StatusCodes.UNAUTHORIZED).end();
         }
