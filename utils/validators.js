@@ -13,7 +13,7 @@ const USER_ID_VALIDATION = body('user_id').notEmpty().isInt().withMessage('user_
 const CARTITEMS_ID_VALIDATION = param('id').notEmpty().isInt().withMessage('cartItems.id 확인 필요');
 
 const SELECTED_VALIDATION = [
-    body('selected').notEmpty().isArray().withMessage('selected가 배열인지 확인 필요'),
+    body('selected').optional().isArray().withMessage('selected가 배열인지 확인 필요'),
     body('selected.*').isInt().withMessage('selected 확인 필요')
 ];
 

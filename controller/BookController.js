@@ -65,28 +65,36 @@ const bookDetail = async (req, res) => {
 
         let authorization = ensureAuthorization(req, res);
 
+        let book_id = req.params.id;
+        let sql;
+        let values;
+
         if(authorization instanceof jwt.TokenExpiredError) {
             return res.status(StatusCodes.UNAUTHORIZED).json({
                 "message": "로그인 세션이 만료되었습니다. 다시 로그인 하세요."
             });
-        } else if(authorization instanceof jwt.TokenExpiredError) {
+        } else if(authorization instanceof jwt.JsonWebTokenError) {
             return res.status(StatusCodes.BAD_REQUEST).json({
                 "message": "잘못된 토큰입니다."
             });
         } else if(authorization instanceof ReferenceError) {
-            let book_id = req.params.id;
-            let sql = "SELECT *, (SELECT count(*) FROM likes WHERE liked_book_id = books.id) AS likes FROM books LEFT JOIN category ON books.category_id = category.category_id WHERE books.id = ?";
-            let values = [book_id];
-            const [results] = await conn.query(sql, values);
-            if(results[0]) return res.status(StatusCodes.OK).json(results[0]);
-            else return res.status(StatusCodes.NOT_FOUND).end();
+            sql = "SELECT *, (SELECT count(*) FROM likes WHERE liked_book_id = books.id) AS likes FROM books LEFT JOIN category ON books.category_id = category.category_id WHERE books.id = ?";
+            values = [book_id];
         } else {
-            let book_id = req.params.id;
-            let sql = "SELECT *, (SELECT count(*) FROM likes WHERE liked_book_id = books.id) AS likes, EXISTS (SELECT * FROM likes WHERE user_id = ? AND liked_book_id = ?) AS liked FROM books LEFT JOIN category ON books.category_id = category.category_id WHERE books.id = ?";
-            let values = [authorization.id, book_id, book_id];
-            const [results] = await conn.query(sql, values);
-            if(results[0]) return res.status(StatusCodes.OK).json(results[0]);
-            else return res.status(StatusCodes.NOT_FOUND).end();
+            sql = "SELECT *, (SELECT count(*) FROM likes WHERE liked_book_id = books.id) AS likes, EXISTS (SELECT * FROM likes WHERE user_id = ? AND liked_book_id = ?) AS liked FROM books LEFT JOIN category ON books.category_id = category.category_id WHERE books.id = ?";
+            values = [authorization.id, book_id, book_id];
+        }
+
+        const [results] = await conn.query(sql, values);
+        if (results.length > 0) {
+            let book = results[0];
+            book.categoryName = book.category_name;
+            book.pubDate = book.pub_date;
+            delete book.category_name;
+            delete book.pub_date;
+            return res.status(StatusCodes.OK).json(book);
+        } else {
+            return res.status(StatusCodes.NOT_FOUND).end();
         }
     } catch (err) {
         console.log(err);

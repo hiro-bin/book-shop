@@ -1,6 +1,4 @@
-const pool = require('../mariadb');
 const {StatusCodes} = require('http-status-codes');
-const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
 const userService = require('../service/userService');
@@ -11,7 +9,7 @@ const join = async (req, res) => {
 
         const results = await userService.createUser(email, password);
 
-        if(results.affectedRows) return res.status(StatusCodes.CREATED).json(results);
+        if(results) return res.status(StatusCodes.CREATED).json(results);
         else res.status(StatusCodes.BAD_REQUEST).end();
     } catch (err) {
         console.log(err);
@@ -33,7 +31,9 @@ const login = async (req, res) => {
             res.cookie("token", token, {
                 httpOnly: true
             });
-            return res.status(StatusCodes.OK).json(verifyUser);
+            console.log(`token: ${token}`);
+
+            return res.status(StatusCodes.OK).json({...verifyUser, token: token});
         } else {
             return res.status(StatusCodes.UNAUTHORIZED).end();
         }

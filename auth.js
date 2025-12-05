@@ -3,9 +3,10 @@ const jwt = require('jsonwebtoken');
 
 const ensureAuthorization = (req, res) => {
     try {
+        let decodedJwt;
         let receivedJwt = req.headers["authorization"];
         if(receivedJwt) {
-            let decodedJwt = jwt.verify(receivedJwt, process.env.PRIVATE_KEY);
+            decodedJwt = jwt.verify(receivedJwt, process.env.PRIVATE_KEY);
         } else {
             throw new ReferenceError("jwt must be provided");
         }
